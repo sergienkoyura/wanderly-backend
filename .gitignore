@@ -1,2 +1,6 @@
-/wanderly-backend.iml
 /.idea/
+*.iml
+*/target
+/.env
+/env.yml
+/secrets/
