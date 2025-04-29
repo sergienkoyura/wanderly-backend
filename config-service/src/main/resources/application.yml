@@ -1,0 +1,33 @@
+server:
+    port: 8888
+
+
+spring:
+    config:
+        import: optional:file:./env.yml
+
+    application:
+        name: config-service
+
+    cloud:
+        config:
+            server:
+                git:
+                    uri: ${config.server.repo}
+                    username: ${config.server.username}
+                    password: ${config.server.token}
+
+
+eureka:
+    client:
+        service-url:
+            defaultZone: http://localhost:8761/eureka
+
+management:
+    endpoints:
+        web:
+            exposure:
+                include: health,info,refresh
+    endpoint:
+        health:
+            show-details: always
