@@ -1,0 +1,74 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./postgres:/docker-entrypoint-initdb.d
+    networks:
+      - wanderly-network
+
+  redis:
+    image: redis:7
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - wanderly-network
+
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: wurstmeister/kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_HOST_NAME: localhost
+      KAFKA_ADVERTISED_PORT: 9092
+    depends_on:
+      - zookeeper
+
+  discovery-service:
+    image: wanderly-discovery-service:latest
+    container_name: discovery-service
+    build:
+      context: ./discovery-service
+    ports:
+      - "8761:8761"
+    networks:
+      - wanderly-network
+
+  config-service:
+    image: wanderly-config-service:latest
+    container_name: config-service
+    build:
+      context: ./config-service
+    ports:
+      - "8888:8888"
+    environment:
+      EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE: http://discovery-service:8761/eureka
+      config.server.repo: ${CONFIG_SERVER_REPO}
+      config.server.username: ${CONFIG_SERVER_USERNAME}
+      config.server.token: ${CONFIG_SERVER_TOKEN}
+    depends_on:
+      - discovery-service
+    networks:
+      - wanderly-network
+
+volumes:
+  postgres-data:
+
+networks:
+  wanderly-network:
+    driver: bridge
