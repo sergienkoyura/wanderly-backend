@@ -47,7 +47,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({
             BadRequestException.class,
 
-            BadCredentialsException.class,
             MissingServletRequestParameterException.class,
             PropertyReferenceException.class,
             MethodArgumentTypeMismatchException.class,
@@ -67,6 +66,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<CustomResponse<?>> handleNotFoundException(NotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ResponseFactory.error(ex.getMessage(), null));
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<CustomResponse<?>> handleUnauthorizedException(BadCredentialsException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ResponseFactory.error("Invalid email or password", null));
     }
 
     @ExceptionHandler(AccessDeniedException.class)
