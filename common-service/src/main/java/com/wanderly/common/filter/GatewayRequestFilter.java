@@ -15,6 +15,8 @@ import java.io.IOException;
 
 @Component
 @Order(1)
+// can be turned on by property
+// @ConditionalOnProperty(name = "security.gateway-filter.enabled", havingValue = "true", matchIfMissing = true)
 public class GatewayRequestFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
