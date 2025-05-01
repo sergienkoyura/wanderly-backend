@@ -5,7 +5,7 @@ import com.wanderly.authservice.enums.AuthorizationType;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 public interface UserService extends UserDetailsService {
-    void register(String email, String password, AuthorizationType type);
+    User register(String email, String password, AuthorizationType type);
 
     boolean isTakenByEmail(String email);
 

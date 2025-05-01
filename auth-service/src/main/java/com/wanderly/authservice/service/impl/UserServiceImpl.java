@@ -21,14 +21,14 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
-    public void register(String email, String password, AuthorizationType type) {
+    public User register(String email, String password, AuthorizationType type) {
         User user = User.builder()
                 .email(email)
                 .password(passwordEncoder.encode(password))
                 .authorizationType(type)
                 .build();
 
-        userRepository.save(user);
+        return userRepository.save(user);
     }
 
     @Override

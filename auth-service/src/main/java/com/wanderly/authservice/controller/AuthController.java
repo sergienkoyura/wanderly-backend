@@ -77,25 +77,27 @@ public class AuthController {
         // Here user can now proceed to full registration or be activated
         redisService.deleteVerificationCode(registerRequest.email());
 
-        userService.register(registerRequest.email(), registerRequest.password(), AuthorizationType.PLAIN);
+        User savedUser = userService.register(registerRequest.email(), registerRequest.password(), AuthorizationType.PLAIN);
 
-        String accessToken = tokenService.generateToken(registerRequest.email(), TokenType.ACCESS);
-        String refreshToken = tokenService.generateToken(registerRequest.email(), TokenType.REFRESH);
+        String accessToken = tokenService.generateToken(savedUser.getId(), TokenType.ACCESS);
+        String refreshToken = tokenService.generateToken(savedUser.getId(), TokenType.REFRESH);
 
         return ResponseEntity.ok(ResponseFactory.success("Email verified successfully", new AuthorizationResponse(accessToken, refreshToken)));
     }
 
     @PostMapping("/login")
     public ResponseEntity<CustomResponse<?>> login(@Valid @RequestBody LoginRequest loginRequest) {
-        Authentication ignoreAuthentication = authenticationManager.authenticate(
+        Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.email(),
                         loginRequest.password()
                 )
         );
 
-        String accessToken = tokenService.generateToken(loginRequest.email(), TokenType.ACCESS);
-        String refreshToken = tokenService.generateToken(loginRequest.email(), TokenType.REFRESH);
+        User authorizedUser = (User) authentication.getPrincipal();
+
+        String accessToken = tokenService.generateToken(authorizedUser.getId(), TokenType.ACCESS);
+        String refreshToken = tokenService.generateToken(authorizedUser.getId(), TokenType.REFRESH);
 
         return ResponseEntity.ok(ResponseFactory.success("Login successful", new AuthorizationResponse(accessToken, refreshToken)));
     }
@@ -119,8 +121,8 @@ public class AuthController {
 
         userService.updateLastLogoutAt(user);
 
-        String newAccessToken = tokenService.generateToken(email, TokenType.ACCESS);
-        String newRefreshToken = tokenService.generateToken(email, TokenType.REFRESH);
+        String newAccessToken = tokenService.generateToken(user.getId(), TokenType.ACCESS);
+        String newRefreshToken = tokenService.generateToken(user.getId(), TokenType.REFRESH);
 
         return ResponseEntity.ok(ResponseFactory.success("Token refreshed successfully", new AuthorizationResponse(newAccessToken, newRefreshToken)));
     }
