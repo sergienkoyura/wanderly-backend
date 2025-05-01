@@ -1,28 +1,21 @@
-package com.wanderly.authservice.exception;
+package com.wanderly.common.exception.handler;
 
 import com.wanderly.common.dto.CustomResponse;
-import com.wanderly.common.exception.BadRequestException;
-import com.wanderly.common.exception.NotFoundException;
-import com.wanderly.common.exception.RateLimitException;
+import com.wanderly.common.exception.*;
 import com.wanderly.common.util.ResponseFactory;
-import org.springframework.data.mapping.PropertyReferenceException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.*;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.InternalAuthenticationServiceException;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.validation.FieldError;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(RateLimitException.class)
@@ -48,7 +41,6 @@ public class GlobalExceptionHandler {
             BadRequestException.class,
 
             MissingServletRequestParameterException.class,
-            PropertyReferenceException.class,
             MethodArgumentTypeMismatchException.class,
             MissingPathVariableException.class,
             HttpMessageNotReadableException.class
@@ -59,29 +51,28 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler({
-            NotFoundException.class,
-
-            InternalAuthenticationServiceException.class,
+            NotFoundException.class
     })
     public ResponseEntity<CustomResponse<?>> handleNotFoundException(NotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ResponseFactory.error(ex.getMessage(), null));
     }
 
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<CustomResponse<?>> handleUnauthorizedException(BadCredentialsException ex) {
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<CustomResponse<?>> handleUnauthorizedException(UnauthorizedException ignored) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(ResponseFactory.error("Invalid email or password", null));
+                .body(ResponseFactory.error("Unauthorized access", null));
     }
 
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<CustomResponse<?>> handleAccessDeniedException(AccessDeniedException ex) {
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<CustomResponse<?>> handleForbiddenException(ForbiddenException ignored) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(ResponseFactory.error("Access is denied", null));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<CustomResponse<?>> handleException(Exception ex) {
+        log.info("Unhandled exception: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ResponseFactory.error(ex.getMessage(), null));
     }
