@@ -12,12 +12,13 @@ import com.wanderly.authservice.service.RedisService;
 import com.wanderly.authservice.service.TokenService;
 import com.wanderly.authservice.service.UserService;
 import com.wanderly.authservice.util.CodeGeneratorUtil;
-import com.wanderly.common.dto.AuthorizationResponse;
+import com.wanderly.common.dto.auth.AuthorizationResponse;
 import com.wanderly.common.dto.CustomResponse;
-import com.wanderly.common.dto.VerificationEmailMessage;
+import com.wanderly.common.dto.auth.VerificationEmailMessage;
 import com.wanderly.common.util.ResponseFactory;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,7 +30,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
+import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequestMapping("api/auth")
 @RequiredArgsConstructor
@@ -106,18 +110,24 @@ public class AuthController {
     public ResponseEntity<CustomResponse<?>> refreshToken(@Valid @RequestBody RefreshRequest request) {
         String refreshToken = request.refreshToken();
 
-        String email = tokenService.extractUsername(refreshToken);
+        UUID userId = tokenService.extractUserId(refreshToken);
 
-        if (email == null || tokenService.isTokenExpired(refreshToken)) {
+        if (userId == null || tokenService.isTokenExpired(refreshToken)) {
             throw new InvalidTokenException();
         }
 
-        User user = userService.findByEmail(email);
+        User user = userService.findById(userId);
 
-        Instant tokenIssuedAt = tokenService.extractIssuedAt(refreshToken);
-        if (user.getLastLogoutAt() != null && tokenIssuedAt.isBefore(user.getLastLogoutAt().toInstant(ZoneOffset.UTC))) {
+        Instant tokenIssuedAt = tokenService.extractIssuedAt(refreshToken)
+                .plus(3, ChronoUnit.HOURS);
+        Instant lastLogoutAt = user.getLastLogoutAt()
+                .atZone(ZoneOffset.UTC)
+                .toInstant();
+        if (user.getLastLogoutAt() != null && tokenIssuedAt.isBefore(lastLogoutAt)) {
             throw new InvalidTokenException(); // token blacklisted
         }
+
+        log.info("Refreshing by userId: {}", userId);
 
         userService.updateLastLogoutAt(user);
 

@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -43,8 +44,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User findById(UUID userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(AccountNotFoundException::new);
+    }
+
+    @Override
     public void updateLastLogoutAt(User user) {
-        user.setLastLogoutAt(LocalDateTime.now());
+        user.setLastLogoutAt(LocalDateTime.now().minusMinutes(1));
         userRepository.save(user);
     }
 

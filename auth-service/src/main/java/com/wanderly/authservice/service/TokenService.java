@@ -65,8 +65,9 @@ public class TokenService {
 //        return encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
 //    }
 
-    public String extractUsername(String token) {
-        return extractClaim(token, "sub", String.class);
+    public UUID extractUserId(String token) {
+        String sub = extractClaim(token, "sub", String.class);
+        return UUID.fromString(sub);
     }
 
     public Instant extractIssuedAt(String token) {
