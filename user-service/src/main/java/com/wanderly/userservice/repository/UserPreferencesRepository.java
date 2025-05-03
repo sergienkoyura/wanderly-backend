@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.UUID;
 
-public interface UserPreferencesRepository extends JpaRepository<UserPreferences, Long> {
+public interface UserPreferencesRepository extends JpaRepository<UserPreferences, UUID> {
     Boolean existsByUserId(UUID userId);
 }

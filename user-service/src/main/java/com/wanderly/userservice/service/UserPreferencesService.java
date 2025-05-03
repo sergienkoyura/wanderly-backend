@@ -7,5 +7,7 @@ import java.util.UUID;
 public interface UserPreferencesService {
     boolean existsByUserId(UUID userId);
 
-    void save(UserPreferences userPreferences);
+    UserPreferences save(UserPreferences userPreferences);
+
+    UserPreferences findById(UUID preferencesId);
 }

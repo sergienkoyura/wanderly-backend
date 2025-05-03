@@ -6,8 +6,5 @@ create table user_preferences
     travel_type    VARCHAR(20),
     time_per_route INTEGER,
     activity_type  VARCHAR(20),
-    notifications  BOOLEAN,
-    geoposition    BOOLEAN,
-    health_kit     BOOLEAN,
-    city_id        UUID        NOT NULL
+    city_id        UUID        null
 );

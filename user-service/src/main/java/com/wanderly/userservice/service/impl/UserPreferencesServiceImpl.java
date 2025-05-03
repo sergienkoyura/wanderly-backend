@@ -1,5 +1,6 @@
 package com.wanderly.userservice.service.impl;
 
+import com.wanderly.userservice.UserPreferencesNotFound;
 import com.wanderly.userservice.entity.UserPreferences;
 import com.wanderly.userservice.repository.UserPreferencesRepository;
 import com.wanderly.userservice.service.UserPreferencesService;
@@ -19,7 +20,13 @@ public class UserPreferencesServiceImpl implements UserPreferencesService {
     }
 
     @Override
-    public void save(UserPreferences userPreferences) {
-        userPreferencesRepository.save(userPreferences);
+    public UserPreferences save(UserPreferences userPreferences) {
+        return userPreferencesRepository.save(userPreferences);
+    }
+
+    @Override
+    public UserPreferences findById(UUID preferencesId) {
+        return userPreferencesRepository.findById(preferencesId)
+                .orElseThrow(UserPreferencesNotFound::new);
     }
 }

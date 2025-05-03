@@ -2,9 +2,13 @@ package com.wanderly.userservice.controller;
 
 import com.wanderly.common.dto.CustomResponse;
 import com.wanderly.common.util.ResponseFactory;
+import com.wanderly.userservice.dto.UserPreferencesDto;
 import com.wanderly.userservice.entity.UserPreferences;
+import com.wanderly.userservice.kafka.CityLookupProducer;
+import com.wanderly.userservice.mapper.UserPreferencesMapper;
 import com.wanderly.userservice.service.UserPreferencesService;
 import com.wanderly.userservice.util.JwtUtil;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +21,8 @@ import java.util.UUID;
 public class UserPreferencesController {
 
     private final UserPreferencesService userPreferencesService;
+    private final UserPreferencesMapper userPreferencesMapper;
+    private final CityLookupProducer cityLookupProducer;
 
 //    @GetMapping("/me")
 
@@ -28,14 +34,19 @@ public class UserPreferencesController {
     }
 
 
-    //todo: validation
     @PostMapping("/me")
     public ResponseEntity<CustomResponse<?>> save(@RequestHeader("Authorization") String token,
-                                                  @RequestBody UserPreferences userPreferences) {
+                                                  @Valid @RequestBody UserPreferencesDto userPreferencesDto) {
         UUID userId = JwtUtil.extractUserId(token);
 
+        UserPreferences userPreferences = userPreferencesMapper.toUserPreferences(userPreferencesDto);
         userPreferences.setUserId(userId);
-        userPreferencesService.save(userPreferences);
+
+        UserPreferences saved = userPreferencesService.save(userPreferences);
+
+        userPreferencesDto.getCity().setPreferencesId(saved.getId());
+        cityLookupProducer.sendCityLookupRequest(userPreferencesDto.getCity());
+
         return ResponseEntity.ok(ResponseFactory.success("User has been saved", null));
     }
 
