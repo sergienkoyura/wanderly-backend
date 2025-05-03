@@ -1,6 +1,6 @@
 package com.wanderly.notificationservice.kafka;
 
-import com.wanderly.common.dto.VerificationEmailMessage;
+import com.wanderly.common.dto.auth.VerificationEmailMessage;
 import com.wanderly.notificationservice.service.MailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
