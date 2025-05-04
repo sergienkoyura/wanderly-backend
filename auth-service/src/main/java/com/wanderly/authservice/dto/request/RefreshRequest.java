@@ -1,4 +1,4 @@
-package com.wanderly.authservice.dto;
+package com.wanderly.authservice.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 
