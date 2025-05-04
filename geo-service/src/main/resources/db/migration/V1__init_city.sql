@@ -1,7 +1,7 @@
 CREATE TABLE city
 (
     id        UUID PRIMARY KEY,
-    place_id  INTEGER          NOT NULL,
+    osm_id    INTEGER          NOT NULL,
     name      VARCHAR(100)     NOT NULL,
     details   VARCHAR(500)     NOT NULL,
     latitude  DOUBLE PRECISION NOT NULL,

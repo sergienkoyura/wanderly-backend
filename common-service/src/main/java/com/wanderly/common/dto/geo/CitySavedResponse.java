@@ -11,7 +11,6 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CityLookupResponse {
-    private UUID preferencesId;
+public class CitySavedResponse {
     private UUID cityId;
 }

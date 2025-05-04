@@ -1,7 +1,6 @@
 package com.wanderly.geoservice.kafka;
 
-import com.wanderly.common.dto.geo.CityLookupRequest;
-import com.wanderly.common.dto.geo.CityLookupResponse;
+import com.wanderly.common.dto.geo.CitySavedResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -10,10 +9,10 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class CityLookupProducer {
-    private final KafkaTemplate<String, CityLookupResponse> kafkaTemplate;
+    private final KafkaTemplate<String, CitySavedResponse> kafkaTemplate;
     private final String topic = "city-lookup-response";
 
-    public void sendCityLookupResponse(CityLookupResponse cityLookupResponse) {
-        kafkaTemplate.send(topic, cityLookupResponse);
+    public void sendCityLookupResponse(CitySavedResponse citySavedResponse) {
+        kafkaTemplate.send(topic, citySavedResponse);
     }
 }

@@ -17,12 +17,12 @@ public class City {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    private Integer placeId;
+    private Integer osmId;
     private String name;
     private String details;
     private Double latitude;
     private Double longitude;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<Double> boundingBox;
 }

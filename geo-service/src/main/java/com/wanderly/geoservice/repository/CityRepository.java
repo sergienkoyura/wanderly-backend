@@ -7,5 +7,5 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface CityRepository extends JpaRepository<City, UUID> {
-    Optional<City> findByPlaceId(Integer placeId);
+    Optional<City> findByOsmId(Integer osmId);
 }
