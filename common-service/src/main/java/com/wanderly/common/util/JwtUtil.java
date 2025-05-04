@@ -1,4 +1,4 @@
-package com.wanderly.userservice.util;
+package com.wanderly.common.util;
 
 import com.nimbusds.jwt.SignedJWT;
 import com.wanderly.common.exception.BadRequestException;
