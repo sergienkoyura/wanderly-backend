@@ -1,8 +1,10 @@
 package com.wanderly.authservice.service.impl;
 
+import com.wanderly.authservice.dto.response.UserDto;
 import com.wanderly.authservice.entity.User;
 import com.wanderly.authservice.enums.AuthorizationType;
 import com.wanderly.authservice.exception.AccountNotFoundException;
+import com.wanderly.authservice.mapper.UserMapper;
 import com.wanderly.authservice.repository.UserRepository;
 import com.wanderly.authservice.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ public class UserServiceImpl implements UserService {
 
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     @Override
     public User register(String email, String password, AuthorizationType type) {
@@ -47,6 +50,12 @@ public class UserServiceImpl implements UserService {
     public User findById(UUID userId) {
         return userRepository.findById(userId)
                 .orElseThrow(AccountNotFoundException::new);
+    }
+
+    @Override
+    public UserDto findDtoById(UUID userId) {
+        User user = findById(userId);
+        return userMapper.toUserDto(user);
     }
 
     @Override
