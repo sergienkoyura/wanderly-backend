@@ -1,8 +1,8 @@
 package com.wanderly.authservice.controller;
 
-import com.wanderly.authservice.dto.LoginRequest;
-import com.wanderly.authservice.dto.RefreshRequest;
-import com.wanderly.authservice.dto.RegisterRequest;
+import com.wanderly.authservice.dto.request.LoginRequest;
+import com.wanderly.authservice.dto.request.RefreshRequest;
+import com.wanderly.authservice.dto.request.RegisterRequest;
 import com.wanderly.authservice.entity.User;
 import com.wanderly.authservice.enums.AuthorizationType;
 import com.wanderly.authservice.enums.TokenType;
@@ -118,13 +118,16 @@ public class AuthController {
 
         User user = userService.findById(userId);
 
-        Instant tokenIssuedAt = tokenService.extractIssuedAt(refreshToken)
-                .plus(3, ChronoUnit.HOURS);
-        Instant lastLogoutAt = user.getLastLogoutAt()
-                .atZone(ZoneOffset.UTC)
-                .toInstant();
-        if (user.getLastLogoutAt() != null && tokenIssuedAt.isBefore(lastLogoutAt)) {
-            throw new InvalidTokenException(); // token blacklisted
+        if (user.getLastLogoutAt() != null) {
+            Instant tokenIssuedAt = tokenService.extractIssuedAt(refreshToken)
+                    .plus(3, ChronoUnit.HOURS);
+            Instant lastLogoutAt = user.getLastLogoutAt()
+                    .atZone(ZoneOffset.UTC)
+                    .toInstant();
+
+            if (tokenIssuedAt.isBefore(lastLogoutAt)) {
+                throw new InvalidTokenException(); // token blacklisted
+            }
         }
 
         log.info("Refreshing by userId: {}", userId);
