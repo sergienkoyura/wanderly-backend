@@ -12,9 +12,9 @@ import com.wanderly.authservice.service.RedisService;
 import com.wanderly.authservice.service.TokenService;
 import com.wanderly.authservice.service.UserService;
 import com.wanderly.authservice.util.CodeGeneratorUtil;
-import com.wanderly.common.dto.auth.AuthorizationResponse;
+import com.wanderly.authservice.dto.response.AuthorizationResponse;
 import com.wanderly.common.dto.CustomResponse;
-import com.wanderly.common.dto.auth.VerificationEmailMessage;
+import com.wanderly.common.dto.VerificationEmailMessage;
 import com.wanderly.common.util.ResponseFactory;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -140,5 +140,5 @@ public class AuthController {
         return ResponseEntity.ok(ResponseFactory.success("Token refreshed successfully", new AuthorizationResponse(newAccessToken, newRefreshToken)));
     }
 
-    // @PostMapping("/logout")
+    // @PostMapping("/logout") todo
 }

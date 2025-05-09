@@ -1,6 +1,4 @@
-package com.wanderly.userservice.exception;
-
-import com.wanderly.common.exception.BadRequestException;
+package com.wanderly.common.exception;
 
 public class ExistsByUserIdException extends BadRequestException {
     public ExistsByUserIdException() {
