@@ -1,22 +1,13 @@
-package com.wanderly.userservice.dto;
+package com.wanderly.geoservice.dto;
 
-import com.wanderly.common.dto.geo.CityDto;
-import com.wanderly.userservice.enums.ActivityType;
-import com.wanderly.userservice.enums.TravelType;
+import com.wanderly.geoservice.enums.ActivityType;
+import com.wanderly.geoservice.enums.TravelType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
-import java.util.UUID;
-
 @Data
 public class UserPreferencesDto {
-    private UUID id;
-
-    @NotBlank
-    @Size(min = 2, max = 100)
-    private String name;
-
     @NotNull
     private TravelType travelType;
 

@@ -1,6 +1,6 @@
 package com.wanderly.geoservice.mapper;
 
-import com.wanderly.common.dto.geo.CityDto;
+import com.wanderly.geoservice.dto.CityDto;
 import com.wanderly.geoservice.entity.City;
 import org.mapstruct.Mapper;
 
@@ -8,5 +8,5 @@ import org.mapstruct.Mapper;
 public interface CityMapper {
     City toCity(CityDto cityDto);
 
-    CityDto toCityLookupRequest(City city);
+    CityDto toCityDto(City city);
 }

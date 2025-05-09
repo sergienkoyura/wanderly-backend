@@ -1,5 +1,6 @@
-package com.wanderly.common.dto.geo;
+package com.wanderly.geoservice.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -12,6 +13,9 @@ import java.util.UUID;
 @Getter
 @Setter
 public class CityDto {
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private UUID id;
     @NotNull
     private Integer osmId;
 

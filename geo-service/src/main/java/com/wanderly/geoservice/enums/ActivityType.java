@@ -1,4 +1,4 @@
-package com.wanderly.userservice.enums;
+package com.wanderly.geoservice.enums;
 
 public enum ActivityType {
     INDOOR,

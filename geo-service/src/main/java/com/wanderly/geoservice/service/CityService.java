@@ -1,12 +1,12 @@
 package com.wanderly.geoservice.service;
 
-import com.wanderly.common.dto.geo.CityDto;
-import com.wanderly.common.dto.geo.CitySavedResponse;
+import com.wanderly.geoservice.dto.CityDto;
+import com.wanderly.geoservice.entity.City;
 
 import java.util.UUID;
 
 public interface CityService {
-    CitySavedResponse save(CityDto cityDto);
+    City findById(UUID id);
 
-    CityDto findDtoById(UUID id);
+    City findByOsmId(CityDto cityDto);
 }

@@ -1,7 +1,7 @@
-package com.wanderly.userservice.entity;
+package com.wanderly.geoservice.entity;
 
-import com.wanderly.userservice.enums.ActivityType;
-import com.wanderly.userservice.enums.TravelType;
+import com.wanderly.geoservice.enums.ActivityType;
+import com.wanderly.geoservice.enums.TravelType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,8 +20,6 @@ public class UserPreferences {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    private String name;
-
     @Column(nullable = false, unique = true)
     private UUID userId; // reference to auth-service user
 
@@ -33,10 +31,7 @@ public class UserPreferences {
     @Enumerated(EnumType.STRING)
     private ActivityType activityType;
 
-//    private Boolean notifications;
-//    private Boolean geoposition;
-//    private Boolean healthKit;
-
-    private UUID cityId; // reference to geo-service city
-
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "city_id", referencedColumnName = "id")
+    private City city;
 }
