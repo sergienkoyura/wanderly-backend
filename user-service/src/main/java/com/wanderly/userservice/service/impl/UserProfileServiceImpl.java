@@ -19,14 +19,14 @@ public class UserProfileServiceImpl implements UserProfileService {
     private final UserProfileMapper userProfileMapper;
 
     @Override
-    public void save(UUID userId, UserProfileDto userProfileDto) {
+    public UserProfileDto save(UUID userId, UserProfileDto userProfileDto) {
         UserProfile profile = userProfileRepository.findByUserId(userId)
                 .orElse(new UserProfile());
         profile.setUserId(userId);
         profile.setName(userProfileDto.getName());
         profile.setAvatarName(userProfileDto.getAvatarName());
 
-        userProfileRepository.save(profile);
+        return userProfileMapper.toUserProfileDto(userProfileRepository.save(profile));
     }
 
     @Override

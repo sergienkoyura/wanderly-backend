@@ -34,12 +34,10 @@ public class UserProfileController {
 
 
     @PostMapping("/me")
-    public ResponseEntity<CustomResponse<?>> save(@RequestHeader("Authorization") String token,
+    public ResponseEntity<CustomResponse<UserProfileDto>> save(@RequestHeader("Authorization") String token,
                                                   @Valid @RequestBody UserProfileDto userProfileDto) {
         UUID userId = JwtUtil.extractUserId(token);
-        userProfileService.save(userId, userProfileDto);
-
-        return ResponseEntity.ok(ResponseFactory.success("User profile is saved", null));
+        return ResponseEntity.ok(ResponseFactory.success("User profile is saved", userProfileService.save(userId, userProfileDto)));
     }
 
 }
