@@ -2,19 +2,23 @@ package com.wanderly.geoservice.util.ga;
 
 import com.wanderly.geoservice.entity.City;
 import com.wanderly.geoservice.entity.Marker;
+import com.wanderly.geoservice.entity.RouteMarker;
 import com.wanderly.geoservice.entity.UserPreferences;
 import com.wanderly.geoservice.enums.ActivityType;
 import com.wanderly.geoservice.enums.MarkerCategory;
 import com.wanderly.geoservice.enums.MarkerTag;
 import com.wanderly.geoservice.enums.TravelType;
-import org.apache.catalina.User;
+import com.wanderly.geoservice.exception.MarkerNotFoundException;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class Router {
 
-    public static ChromoRoute generateRoute(City city, List<Marker> markers, UserPreferences userPreferences) {
+    public static ChromoRoute generateRoute(City city,
+                                            List<Marker> markers,
+                                            UserPreferences userPreferences,
+                                            List<RouteMarker> prefixOuter) {
         List<GenMarker> genMarkers = markers.stream()
                 .map(m -> new GenMarker(
                         m.getId(),
@@ -30,15 +34,24 @@ public class Router {
                 ))
                 .collect(Collectors.toList());
 
-        List<ChromoRoute> population = generateInitialPopulation(genMarkers, userPreferences);
+        List<GenMarker> prefix = new ArrayList<>();
+        if (prefixOuter != null) {
+            for (RouteMarker outerMarker: prefixOuter) {
+                GenMarker innerMarker = genMarkers.stream().filter(el -> el.getId().equals(outerMarker.getMarker().getId())).findFirst()
+                        .orElseThrow(MarkerNotFoundException::new);
+                prefix.add(innerMarker);
+            }
+        }
 
-        return evolve(genMarkers, userPreferences, population);
+        List<ChromoRoute> population = generateInitialPopulation(genMarkers, userPreferences, prefix);
+
+        return evolve(genMarkers, userPreferences, population, prefix);
 
 //        return greedyGenerate(genMarkers, userPreferences);
     }
 
 
-    private static double calculateWeight(City city, Marker marker, UserPreferences preferences) {
+    public static double calculateWeight(City city, Marker marker, UserPreferences preferences) {
         ActivityType activityType = preferences.getActivityType();
         int timePerRoute = preferences.getTimePerRoute();
         MarkerCategory markerCategory = marker.getCategory();
@@ -106,11 +119,11 @@ public class Router {
         double boostedCenter = Math.pow(normalizedCenter, timePressureCenterMultiplier);
 
         return 0.2 * boostedCenter +
-                0.5 * boostedRating +
-                0.3 * normalizedActivity;
+                0.4 * boostedRating +
+                0.4 * normalizedActivity;
     }
 
-    private static int calculateTime(MarkerTag tag, int timePerRoute, TravelType travelType) {
+    public static int calculateTime(MarkerTag tag, int timePerRoute, TravelType travelType) {
         int baseTime = switch (tag) {
             case PARK, GARDEN -> 30;
             case NATURE_RESERVE -> 45;
@@ -153,7 +166,9 @@ public class Router {
         return (int) Math.max(5, baseTime * timePressureMultiplier * travelTypeMultiplier);
     }
 
-    private static List<ChromoRoute> generateInitialPopulation(List<GenMarker> markers, UserPreferences prefs) {
+    private static List<ChromoRoute> generateInitialPopulation(List<GenMarker> markers,
+                                                               UserPreferences prefs,
+                                                               List<GenMarker> prefix) {
         // Population: 5% of all markers or 10
 //        int populationSize = Math.max((int) Math.ceil(markers.size() * 0.05), 10);
 //        int populationSize = (int) (markers.size() * 0.1);
@@ -162,7 +177,7 @@ public class Router {
 
         List<ChromoRoute> population = new ArrayList<>();
         for (int i = 0; i < populationSize; i++) {
-            ChromoRoute route = greedyGenerate(markers, prefs);
+            ChromoRoute route = greedyGenerate(markers, prefs, prefix);
             population.add(route);
         }
 
@@ -172,21 +187,39 @@ public class Router {
 
 
     // greedy search for best options
-    private static ChromoRoute greedyGenerate(List<GenMarker> allMarkers, UserPreferences prefs) {
+    private static ChromoRoute greedyGenerate(List<GenMarker> allMarkers,
+                                              UserPreferences prefs,
+                                              List<GenMarker> prefix) {
         // todo try to combine elite pick + random (30/70)
 
         Set<GenMarker> used = new LinkedHashSet<>();
-
+        GenMarker current;
         List<GenMarker> bestMarkers = allMarkers.stream()
                 .sorted(Comparator.comparingDouble(GenMarker::getWeight).reversed())
-                .limit(Math.max(30, allMarkers.size() / 10)) // limit by
+                .limit(Math.max(50, allMarkers.size() / 2)) // limit by
                 .collect(Collectors.toList()); // mutable
+        int totalTime = 0;
+
+        // Initialize with prefix
+        if (prefix != null && !prefix.isEmpty()) {
+            used.addAll(prefix);
+            current = prefix.getLast();
+            for (int i = 0; i < prefix.size(); i++) {
+                totalTime += prefix.get(i).getStayingTime();
+                if (i > 0) {
+                    totalTime += estimateTravelTime(prefix.get(i - 1), prefix.get(i), prefs.getTravelType());
+                }
+            }
+        } else {
+            current = bestMarkers.get(new Random().nextInt(bestMarkers.size()));
+            used.add(current);
+            totalTime = current.getStayingTime();
+        }
 
         // Random start
-        GenMarker current = bestMarkers.get(new Random().nextInt(bestMarkers.size()));
-        used.add(current);
+//        GenMarker current = bestMarkers.get(new Random().nextInt(bestMarkers.size()));
+//        used.add(current);
 
-        int totalTime = current.getStayingTime();
         while (true) {
             int finalTotalTime = totalTime;
             GenMarker finalCurrent = current;
@@ -239,8 +272,16 @@ public class Router {
     }
 
 
-    private static ChromoRoute evolve(List<GenMarker> allMarkers, UserPreferences prefs, List<ChromoRoute> population) {
-        int generations = Math.min(allMarkers.size() * 10, 30000);
+    private static ChromoRoute evolve(List<GenMarker> allMarkers,
+                                      UserPreferences prefs,
+                                      List<ChromoRoute> population,
+                                      List<GenMarker> prefix) {
+        int n = allMarkers.size();
+        double multiplier = n < 500 ? 50
+                : n < 1000 ? 30
+                : n < 2000 ? 15
+                : 10;
+        int generations = Math.min((int) (n * multiplier), 30000);
         double mutationRate = 0.1;
 
         double max = 0;
@@ -254,15 +295,15 @@ public class Router {
             ChromoRoute parent2 = population.get(new Random().nextInt(population.size()));
 
             // crossover
-            ChromoRoute child = crossover(parent1, parent2, prefs, sizeToReach);
+            ChromoRoute child = crossover(parent1, parent2, prefs, sizeToReach, prefix);
 
             // mutation
             if (Math.random() < mutationRate) {
-                child = mutate(child, allMarkers, prefs);
+                child = mutate(child, allMarkers, prefs, prefix);
             }
 
             // local improvement
-            ChromoRoute improved = localImprove(child, prefs);
+            ChromoRoute improved = localImprove(child, prefs, prefix);
             if (improved.getFitness() > child.getFitness()) {
                 child = improved;
             }
@@ -297,30 +338,22 @@ public class Router {
     /**
      * Single-point crossover
      */
-    private static ChromoRoute crossover(ChromoRoute p1, ChromoRoute p2, UserPreferences prefs, int sizeToReach) {
-        List<GenMarker> result = new ArrayList<>();
+    private static ChromoRoute crossover(ChromoRoute p1,
+                                         ChromoRoute p2,
+                                         UserPreferences prefs,
+                                         int sizeToReach,
+                                         List<GenMarker> prefix) {
+        List<GenMarker> result = new ArrayList<>(prefix);
 
         // enrich 1 route
-        List<GenMarker> toAddRoute1 = new ArrayList<>();
-        for (int i = 0; i < sizeToReach - p1.getMarkers().size(); i++) {
-            toAddRoute1.add(null);
-        }
-        List<GenMarker> markersToSetRoute1 = new ArrayList<>();
-        markersToSetRoute1.addAll(p1.getMarkers());
-        markersToSetRoute1.addAll(toAddRoute1);
+        List<GenMarker> markersToSetRoute1 = scatterWithNulls(p1.getMarkers(), sizeToReach);
         p1.setMarkers(markersToSetRoute1);
 
         // enrich 2 route
-        List<GenMarker> toAddRoute2 = new ArrayList<>();
-        for (int i = 0; i < sizeToReach - p2.getMarkers().size(); i++) {
-            toAddRoute2.add(null);
-        }
-        List<GenMarker> markersToSetRoute2 = new ArrayList<>();
-        markersToSetRoute2.addAll(toAddRoute2);
-        markersToSetRoute2.addAll(p2.getMarkers());
+        List<GenMarker> markersToSetRoute2 = scatterWithNulls(p2.getMarkers(), sizeToReach);
         p2.setMarkers(markersToSetRoute2);
 
-        for (int i = 0; i < sizeToReach; i++) {
+        for (int i = prefix.size(); i < sizeToReach; i++) {
             if (new Random().nextInt() < 0.5) {
                 if (result.contains(p1.getMarkers().get(i))) {
                     result.add(null);
@@ -337,6 +370,31 @@ public class Router {
         }
 
         return rebuildRoute(result.stream().toList(), prefs);
+    }
+
+    private static List<GenMarker> scatterWithNulls(List<GenMarker> original, int sizeToReach) {
+        List<GenMarker> result = new ArrayList<>(Collections.nCopies(sizeToReach, null));
+        Random random = new Random();
+
+        int lastPlacedIndex = -1;
+        int remainingSlots = sizeToReach;
+        int remainingItems = original.size();
+
+        for (GenMarker marker : original) {
+            // Calculate remaining space
+            int maxOffset = remainingSlots - remainingItems;
+            int minIndex = lastPlacedIndex + 1;
+            int maxIndex = minIndex + maxOffset;
+
+            int targetIndex = random.nextInt(maxIndex - minIndex + 1) + minIndex;
+
+            result.set(targetIndex, marker);
+            lastPlacedIndex = targetIndex;
+            remainingSlots = sizeToReach - (lastPlacedIndex + 1);
+            remainingItems--;
+        }
+
+        return result;
     }
 
     /**
@@ -377,10 +435,13 @@ public class Router {
         return new ChromoRoute(route, totalTime, fitness);
     }
 
-    private static ChromoRoute mutate(ChromoRoute route, List<GenMarker> allMarkers, UserPreferences prefs) {
+    private static ChromoRoute mutate(ChromoRoute route,
+                                      List<GenMarker> allMarkers,
+                                      UserPreferences prefs,
+                                      List<GenMarker> prefix) {
         List<GenMarker> current = new ArrayList<>(route.getMarkers());
         if (current.size() <= 2) return route;
-        int indexToMutate = new Random().nextInt(current.size());
+        int indexToMutate = new Random().nextInt(current.size() - prefix.size()) + prefix.size();
 
         Set<GenMarker> used = new HashSet<>(current);
 
@@ -400,10 +461,12 @@ public class Router {
         return rebuildRoute(current, prefs);
     }
 
-    private static ChromoRoute localImprove(ChromoRoute route, UserPreferences prefs) {
+    private static ChromoRoute localImprove(ChromoRoute route,
+                                            UserPreferences prefs,
+                                            List<GenMarker> prefix) {
         List<GenMarker> markers = new ArrayList<>(route.getMarkers());
-        int index1 = new Random().nextInt(markers.size());
-        int index2 = new Random().nextInt(markers.size());
+        int index1 = new Random().nextInt(markers.size() - prefix.size()) + prefix.size();
+        int index2 = new Random().nextInt(markers.size() - prefix.size()) + prefix.size();
 
         Collections.swap(markers, index1, index2);
         return rebuildRoute(markers, prefs);
@@ -421,7 +484,7 @@ public class Router {
 
             // sector loop penalty
             if (prefs.getActivityType() != ActivityType.INDOOR) {
-                String sector = getSectorKey(current.getLatitude(), current.getLongitude(), prefs);
+                String sector = getSectorKey(current.getLatitude(), current.getLongitude(), 200);
                 if (visitedSectors.contains(sector)) {
                     if (prefs.getTimePerRoute() > 2 && prefs.getTimePerRoute() <= 5) {
                         score -= 1;
@@ -515,9 +578,9 @@ public class Router {
         return Math.max(0, score); // never return negative
     }
 
-    private static String getSectorKey(double lat, double lon, UserPreferences prefs) {
-        // Approximate 0.3/1.1 km sector
-        int multiplier = prefs.getTimePerRoute() <= 5 ? 200 : 100;
+    public static String getSectorKey(double lat, double lon, int multiplier) {
+        // Approximate 200-0.3/100-1.1 km sector
+//        int multiplier = prefs.getTimePerRoute() <= 5 ? 200 : 100;
         int latSector = (int) (lat * multiplier);
         int lonSector = (int) (lon * multiplier);
         return latSector + "_" + lonSector;
