@@ -17,6 +17,6 @@ public class MarkerController {
 
     @GetMapping("/markers/{cityId}")
     public ResponseEntity<CustomResponse<?>> generateMarkers(@PathVariable(name = "cityId") UUID cityId) {
-        return ResponseEntity.ok(ResponseFactory.success("Markers found", markerService.findAllByCityId(cityId)));
+        return ResponseEntity.ok(ResponseFactory.success("Markers found", markerService.findAllDtosByCityId(cityId)));
     }
 }
