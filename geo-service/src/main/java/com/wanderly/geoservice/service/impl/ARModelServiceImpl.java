@@ -34,7 +34,7 @@ public class ARModelServiceImpl implements ARModelService {
 
     @Override
     public List<ARModelDto> findAllDtosByCityId(UUID userId, UUID cityId, Double userLatitude, Double userLongitude) {
-        List<ARModel> models = arModelRepository.findAllByCityId(cityId);
+        List<ARModel> models = arModelRepository.findAllByCityIdAndUserId(cityId, userId);
         if (!models.isEmpty())
             return arModelMapper.toDtos(models);
 
@@ -44,7 +44,7 @@ public class ARModelServiceImpl implements ARModelService {
 
         // Rate and sort markers
         List<Marker> sortedMarkers = allMarkers.stream()
-                .sorted(Comparator.comparingDouble(m ->Router.calculateWeight(city, (Marker) m, preferences)).reversed()) // descending
+                .sorted(Comparator.comparingDouble(m -> Router.calculateWeight(city, (Marker) m, preferences)).reversed()) // descending
                 .toList();
 
         Set<String> usedSectors = new HashSet<>();
@@ -53,6 +53,7 @@ public class ARModelServiceImpl implements ARModelService {
         if (userLatitude != null && userLongitude != null) {
             models.add(ARModel.builder()
                     .cityId(cityId)
+                    .userId(userId)
                     .latitude(userLatitude)
                     .longitude(userLongitude)
                     .code(generateCode())
@@ -70,6 +71,7 @@ public class ARModelServiceImpl implements ARModelService {
 
             models.add(ARModel.builder()
                     .cityId(cityId)
+                    .userId(userId)
                     .latitude(marker.getLatitude())
                     .longitude(marker.getLongitude())
                     .code(generateCode())

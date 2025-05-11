@@ -26,6 +26,7 @@ public class ARModel {
     private Double longitude;
     private Integer code;
     private UUID cityId;
+    private UUID userId;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
