@@ -7,12 +7,13 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 //todo: validation
 @Getter
 @Setter
-public class MarkerDto {
+public class MarkerDto implements Serializable {
     @NotNull
     private UUID id;
 

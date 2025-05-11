@@ -11,9 +11,9 @@ import com.wanderly.geoservice.service.CityService;
 import com.wanderly.geoservice.service.MarkerService;
 import com.wanderly.geoservice.util.OSMUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,6 +24,7 @@ public class MarkerServiceImpl implements MarkerService {
     private final CityService cityService;
     private final MarkerMapper markerMapper;
 
+    @Cacheable(value = "cityMarkers", key = "#root.args[0]")
     @Override
     public List<MarkerDto> findAllDtosByCityId(UUID cityId) {
         List<Marker> markers = markerRepository.findAllByCityId(cityId);
@@ -31,7 +32,6 @@ public class MarkerServiceImpl implements MarkerService {
             return markerMapper.toDtos(markers);
         }
 
-        // fetching city for validation
         City city = cityService.findById(cityId);
         List<Marker> fetchedMarkers = OSMUtil.fetchMarkers(city);
         List<Marker> savedMarkers = markerRepository.saveAll(fetchedMarkers);
