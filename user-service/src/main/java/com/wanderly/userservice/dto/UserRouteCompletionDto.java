@@ -17,7 +17,7 @@ public class UserRouteCompletionDto {
     private RouteStatus status;
 
     @NotNull
-    @Min(2)
+    @Min(0)
     private Integer step;
 
     @NotNull

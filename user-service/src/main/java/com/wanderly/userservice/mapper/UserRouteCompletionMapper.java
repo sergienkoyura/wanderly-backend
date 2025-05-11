@@ -7,4 +7,6 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface UserRouteCompletionMapper {
     UserRouteCompletion toEntity(UserRouteCompletionDto dto);
+
+    UserRouteCompletionDto toDto(UserRouteCompletion foundCompletion);
 }

@@ -7,7 +7,7 @@ create table user_route_completion
     step     INTEGER     NOT NULL
 );
 
-create table ar_completion
+create table user_ar_model_completion
 (
     id       UUID PRIMARY KEY,
     user_id  UUID NOT NULL,

@@ -7,5 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface UserRouteCompletionRepository extends JpaRepository<UserRouteCompletion, UUID> {
-    Optional<UserRouteCompletion> findByRouteId(UUID routeId);
+    Optional<UserRouteCompletion> findByRouteIdAndUserId(UUID routeId, UUID userId);
+
+    void deleteByRouteId(UUID routeId);
 }
