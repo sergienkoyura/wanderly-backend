@@ -15,6 +15,7 @@ import com.wanderly.authservice.util.CodeGeneratorUtil;
 import com.wanderly.authservice.dto.response.AuthorizationResponse;
 import com.wanderly.common.dto.CustomResponse;
 import com.wanderly.common.dto.VerificationEmailMessage;
+import com.wanderly.common.util.JwtUtil;
 import com.wanderly.common.util.ResponseFactory;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,10 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -140,5 +138,11 @@ public class AuthController {
         return ResponseEntity.ok(ResponseFactory.success("Token refreshed successfully", new AuthorizationResponse(newAccessToken, newRefreshToken)));
     }
 
-    // @PostMapping("/logout") todo
+    @PostMapping("/logout")
+    public ResponseEntity<CustomResponse<?>> logout(@RequestHeader("Authorization") String token) {
+        UUID userId = JwtUtil.extractUserId(token);
+        User user = userService.findById(userId);
+        userService.updateLastLogoutAt(user);
+        return ResponseEntity.ok(ResponseFactory.success("Logout successful", null));
+    }
 }
