@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class VerificationEmailProducer {
     private final KafkaTemplate<String, VerificationEmailMessage> kafkaTemplate;
-    private final String topic = "verification-email-topic";
+    private final String topic = "notification.verification-email";
 
     public void sendVerificationEmail(VerificationEmailMessage message) {
         kafkaTemplate.send(topic, message);

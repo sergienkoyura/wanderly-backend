@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -19,13 +20,13 @@ public class TokenService {
     private static final long REFRESH_TOKEN_EXPIRATION = 60 * 24 * 7; // 7 days
 
 
-    public String generateToken(String email, TokenType tokenType) {
+    public String generateToken(UUID userId, TokenType tokenType) {
         Instant now = Instant.now();
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("wanderly")
                 .issuedAt(now)
                 .expiresAt(now.plus(tokenType.equals(TokenType.ACCESS) ? ACCESS_TOKEN_EXPIRATION : REFRESH_TOKEN_EXPIRATION, ChronoUnit.MINUTES))
-                .subject(email)
+                .subject(String.valueOf(userId))
                 .build();
 
         return encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
@@ -64,8 +65,9 @@ public class TokenService {
 //        return encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
 //    }
 
-    public String extractUsername(String token) {
-        return extractClaim(token, "sub", String.class);
+    public UUID extractUserId(String token) {
+        String sub = extractClaim(token, "sub", String.class);
+        return UUID.fromString(sub);
     }
 
     public Instant extractIssuedAt(String token) {

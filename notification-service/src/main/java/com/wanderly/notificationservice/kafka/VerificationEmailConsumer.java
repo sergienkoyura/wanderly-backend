@@ -16,7 +16,7 @@ public class VerificationEmailConsumer {
 
     private final MailService mailService;
 
-    @KafkaListener(topics = "verification-email-topic", groupId = "notification-service-group")
+    @KafkaListener(topics = "notification.verification-email", groupId = "notification-service-group")
     public void listen(ConsumerRecord<String, VerificationEmailMessage> record, Acknowledgment ack) {
         log.info("Received: {}", record.value());
         ack.acknowledge();

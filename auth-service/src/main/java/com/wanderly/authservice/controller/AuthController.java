@@ -1,8 +1,8 @@
 package com.wanderly.authservice.controller;
 
-import com.wanderly.authservice.dto.LoginRequest;
-import com.wanderly.authservice.dto.RefreshRequest;
-import com.wanderly.authservice.dto.RegisterRequest;
+import com.wanderly.authservice.dto.request.LoginRequest;
+import com.wanderly.authservice.dto.request.RefreshRequest;
+import com.wanderly.authservice.dto.request.RegisterRequest;
 import com.wanderly.authservice.entity.User;
 import com.wanderly.authservice.enums.AuthorizationType;
 import com.wanderly.authservice.enums.TokenType;
@@ -12,24 +12,26 @@ import com.wanderly.authservice.service.RedisService;
 import com.wanderly.authservice.service.TokenService;
 import com.wanderly.authservice.service.UserService;
 import com.wanderly.authservice.util.CodeGeneratorUtil;
-import com.wanderly.common.dto.AuthorizationResponse;
+import com.wanderly.authservice.dto.response.AuthorizationResponse;
 import com.wanderly.common.dto.CustomResponse;
 import com.wanderly.common.dto.VerificationEmailMessage;
+import com.wanderly.common.util.JwtUtil;
 import com.wanderly.common.util.ResponseFactory;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
+import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequestMapping("api/auth")
 @RequiredArgsConstructor
@@ -77,25 +79,27 @@ public class AuthController {
         // Here user can now proceed to full registration or be activated
         redisService.deleteVerificationCode(registerRequest.email());
 
-        userService.register(registerRequest.email(), registerRequest.password(), AuthorizationType.PLAIN);
+        User savedUser = userService.register(registerRequest.email(), registerRequest.password(), AuthorizationType.PLAIN);
 
-        String accessToken = tokenService.generateToken(registerRequest.email(), TokenType.ACCESS);
-        String refreshToken = tokenService.generateToken(registerRequest.email(), TokenType.REFRESH);
+        String accessToken = tokenService.generateToken(savedUser.getId(), TokenType.ACCESS);
+        String refreshToken = tokenService.generateToken(savedUser.getId(), TokenType.REFRESH);
 
         return ResponseEntity.ok(ResponseFactory.success("Email verified successfully", new AuthorizationResponse(accessToken, refreshToken)));
     }
 
     @PostMapping("/login")
     public ResponseEntity<CustomResponse<?>> login(@Valid @RequestBody LoginRequest loginRequest) {
-        Authentication ignoreAuthentication = authenticationManager.authenticate(
+        Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.email(),
                         loginRequest.password()
                 )
         );
 
-        String accessToken = tokenService.generateToken(loginRequest.email(), TokenType.ACCESS);
-        String refreshToken = tokenService.generateToken(loginRequest.email(), TokenType.REFRESH);
+        User authorizedUser = (User) authentication.getPrincipal();
+
+        String accessToken = tokenService.generateToken(authorizedUser.getId(), TokenType.ACCESS);
+        String refreshToken = tokenService.generateToken(authorizedUser.getId(), TokenType.REFRESH);
 
         return ResponseEntity.ok(ResponseFactory.success("Login successful", new AuthorizationResponse(accessToken, refreshToken)));
     }
@@ -104,26 +108,41 @@ public class AuthController {
     public ResponseEntity<CustomResponse<?>> refreshToken(@Valid @RequestBody RefreshRequest request) {
         String refreshToken = request.refreshToken();
 
-        String email = tokenService.extractUsername(refreshToken);
+        UUID userId = tokenService.extractUserId(refreshToken);
 
-        if (email == null || tokenService.isTokenExpired(refreshToken)) {
+        if (userId == null || tokenService.isTokenExpired(refreshToken)) {
             throw new InvalidTokenException();
         }
 
-        User user = userService.findByEmail(email);
+        User user = userService.findById(userId);
 
-        Instant tokenIssuedAt = tokenService.extractIssuedAt(refreshToken);
-        if (user.getLastLogoutAt() != null && tokenIssuedAt.isBefore(user.getLastLogoutAt().toInstant(ZoneOffset.UTC))) {
-            throw new InvalidTokenException(); // token blacklisted
+        if (user.getLastLogoutAt() != null) {
+            Instant tokenIssuedAt = tokenService.extractIssuedAt(refreshToken)
+                    .plus(3, ChronoUnit.HOURS);
+            Instant lastLogoutAt = user.getLastLogoutAt()
+                    .atZone(ZoneOffset.UTC)
+                    .toInstant();
+
+            if (tokenIssuedAt.isBefore(lastLogoutAt)) {
+                throw new InvalidTokenException(); // token blacklisted
+            }
         }
+
+        log.info("Refreshing by userId: {}", userId);
 
         userService.updateLastLogoutAt(user);
 
-        String newAccessToken = tokenService.generateToken(email, TokenType.ACCESS);
-        String newRefreshToken = tokenService.generateToken(email, TokenType.REFRESH);
+        String newAccessToken = tokenService.generateToken(user.getId(), TokenType.ACCESS);
+        String newRefreshToken = tokenService.generateToken(user.getId(), TokenType.REFRESH);
 
         return ResponseEntity.ok(ResponseFactory.success("Token refreshed successfully", new AuthorizationResponse(newAccessToken, newRefreshToken)));
     }
 
-    // @PostMapping("/logout")
+    @PostMapping("/logout")
+    public ResponseEntity<CustomResponse<?>> logout(@RequestHeader("Authorization") String token) {
+        UUID userId = JwtUtil.extractUserId(token);
+        User user = userService.findById(userId);
+        userService.updateLastLogoutAt(user);
+        return ResponseEntity.ok(ResponseFactory.success("Logout successful", null));
+    }
 }

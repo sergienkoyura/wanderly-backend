@@ -51,6 +51,8 @@
         <module>gateway-service</module>
         <module>discovery-service</module>
         <module>config-service</module>
+        <module>user-service</module>
+        <module>geo-service</module>
     </modules>
 
     <build>
@@ -71,6 +73,11 @@
                         <path>
                             <groupId>org.springframework.boot</groupId>
                             <artifactId>spring-boot-configuration-processor</artifactId>
+                        </path>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>1.6.0.Beta1</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
