@@ -14,4 +14,5 @@ import java.util.UUID;
 public class UserARModelCompletionMessage {
     private UUID userId;
     private UUID modelId;
+    private String cityName;
 }

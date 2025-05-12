@@ -94,7 +94,8 @@ public class ARModelServiceImpl implements ARModelService {
             throw new ARModelVerificationFailureException();
         }
 
-        userARModelCompletionProducer.sendCompletionMessage(new UserARModelCompletionMessage(userId, request.modelId()));
+        City city = cityService.findById(model.getCityId());
+        userARModelCompletionProducer.sendCompletionMessage(new UserARModelCompletionMessage(userId, request.modelId(), city.getName()));
     }
 
     private Integer generateCode() {

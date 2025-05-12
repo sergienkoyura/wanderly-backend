@@ -22,7 +22,7 @@ public class UserARModelCompletionConsumer {
         log.info("Received: {}", record.value());
         ack.acknowledge();
 
-        userARModelCompletionService.save(record.value().getUserId(), record.value().getModelId());
+        userARModelCompletionService.save(record.value().getUserId(), record.value().getModelId(), record.value().getCityName());
     }
 
 }

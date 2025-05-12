@@ -22,6 +22,7 @@ public class UserRouteCompletion {
     @Enumerated(EnumType.STRING)
     private RouteStatus status;
     private Integer step;
+    private String cityName;
 
     private UUID userId; // reference to auth-service user
 

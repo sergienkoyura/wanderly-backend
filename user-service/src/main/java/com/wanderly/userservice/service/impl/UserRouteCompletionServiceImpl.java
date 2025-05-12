@@ -34,6 +34,7 @@ public class UserRouteCompletionServiceImpl implements UserRouteCompletionServic
         savedByRoute.setUserId(userId);
         savedByRoute.setStep(userRouteCompletionDto.getStep());
         savedByRoute.setStatus(userRouteCompletionDto.getStatus());
+        savedByRoute.setCityName(userRouteCompletionDto.getCityName());
         savedByRoute.setRouteId(userRouteCompletionDto.getRouteId());
         userRouteCompletionRepository.save(savedByRoute);
     }

@@ -20,4 +20,5 @@ public class UserARModelCompletion {
     private UUID id;
     private UUID userId;
     private UUID modelId;
+    private String cityName;
 }
