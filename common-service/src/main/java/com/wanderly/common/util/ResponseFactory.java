@@ -15,7 +15,7 @@ public class ResponseFactory {
         return new CustomResponse<>("error-jwt", message, data, null);
     }
 
-    public static <T> CustomResponse<T> errorCustom(String message, T data) {
+    public static <T> CustomResponse<T> errorCustom(String message) {
         return new CustomResponse<>("error-custom", message, null, null);
     }
 }

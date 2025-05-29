@@ -1,6 +1,5 @@
 package com.wanderly.geoservice.service.impl;
 
-import com.wanderly.common.exception.ExistsByUserIdException;
 import com.wanderly.geoservice.dto.UserPreferencesDto;
 import com.wanderly.geoservice.entity.City;
 import com.wanderly.geoservice.entity.UserPreferences;

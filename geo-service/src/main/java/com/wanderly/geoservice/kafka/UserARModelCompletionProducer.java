@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserARModelCompletionProducer {
     private final KafkaTemplate<String, UserARModelCompletionMessage> kafkaTemplate;
-    private final String topic = "user.ar-model.complete";
+    private static final String topic = "user.ar-model.complete";
 
     public void sendCompletionMessage(UserARModelCompletionMessage message) {
         kafkaTemplate.send(topic, message);

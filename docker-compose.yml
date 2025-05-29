@@ -66,6 +66,20 @@ services:
     networks:
       - wanderly-network
 
+  sonarqube:
+    image: sonarqube:latest
+    container_name: sonarqube
+    ports:
+      - "9000:9000"
+    environment:
+      - SONAR_JDBC_URL=jdbc:postgresql://postgres:5432/sonar_db
+      - SONAR_JDBC_USERNAME=postgres
+      - SONAR_JDBC_PASSWORD=postgres
+    depends_on:
+      - postgres
+    networks:
+      - wanderly-network
+
 volumes:
   postgres-data:
 

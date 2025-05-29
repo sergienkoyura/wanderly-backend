@@ -1,6 +1,5 @@
 package com.wanderly.userservice.repository;
 
-import com.wanderly.userservice.dto.CityStatisticsDto;
 import com.wanderly.userservice.entity.UserRouteCompletion;
 import jakarta.persistence.Tuple;
 import org.springframework.data.jpa.repository.JpaRepository;

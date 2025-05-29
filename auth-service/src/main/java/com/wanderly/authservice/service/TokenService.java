@@ -16,8 +16,8 @@ public class TokenService {
     private final JwtEncoder encoder;
     private final JwtDecoder decoder;
 
-    private static final long ACCESS_TOKEN_EXPIRATION = 15; // 15 minutes
-    private static final long REFRESH_TOKEN_EXPIRATION = 60 * 24 * 7; // 7 days
+    private static final int ACCESS_TOKEN_EXPIRATION = 15; // 15 minutes
+    private static final int REFRESH_TOKEN_EXPIRATION = 60 * 24 * 7; // 7 days
 
 
     public String generateToken(UUID userId, TokenType tokenType) {
@@ -31,39 +31,6 @@ public class TokenService {
 
         return encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
-
-//    private String buildToken(String subject, boolean accessToken) {
-//        Account account = accountService.findByEmail(subject);
-//
-//        long expiration = accessToken ? ACCESS_TOKEN_EXPIRATION : REFRESH_TOKEN_EXPIRATION;
-//        List<String> scope = account.getRoles().stream().map(GrantedAuthority::getAuthority).toList();
-//
-//        Map<String, Object> payload = new HashMap<>();
-//        if (accessToken) {
-//            AccountCompany accountCompany = accountCompanyService.findByAccountEmail(subject)
-//                    .orElse(null);
-//            boolean hasCompany = accountCompany != null && accountCompany.getInvited().equals(CompanyInvite.accepted);
-//            boolean isCompanyAdmin = accountCompany != null && accountCompany.getCompanyAdmin();
-//            payload.put("name", account.getFullName());
-//            payload.put("img", s3Adapter.retrieveFile("profile", account.getProfile().getProfilePhoto()));
-//            payload.put("steps", account.hasEmptySteps());
-//            payload.put("url", account.getUniqueUrl());
-//            payload.put("company", hasCompany);
-//            payload.put("companyAdmin", isCompanyAdmin);
-//        }
-//
-//        Instant now = Instant.now();
-//        JwtClaimsSet claims = JwtClaimsSet.builder()
-//                .issuer("cnnect")
-//                .issuedAt(now)
-//                .expiresAt(now.plus(expiration, ChronoUnit.HOURS))
-//                .subject(subject)
-//                .claim("scope", scope)
-//                .claim("payload", payload)
-//                .build();
-//
-//        return encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
-//    }
 
     public UUID extractUserId(String token) {
         String sub = extractClaim(token, "sub", String.class);

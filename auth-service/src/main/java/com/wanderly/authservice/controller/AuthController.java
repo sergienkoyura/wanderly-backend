@@ -3,6 +3,7 @@ package com.wanderly.authservice.controller;
 import com.wanderly.authservice.dto.request.LoginRequest;
 import com.wanderly.authservice.dto.request.RefreshRequest;
 import com.wanderly.authservice.dto.request.RegisterRequest;
+import com.wanderly.authservice.dto.response.AuthorizationResponse;
 import com.wanderly.authservice.entity.User;
 import com.wanderly.authservice.enums.AuthorizationType;
 import com.wanderly.authservice.enums.TokenType;
@@ -12,7 +13,6 @@ import com.wanderly.authservice.service.RedisService;
 import com.wanderly.authservice.service.TokenService;
 import com.wanderly.authservice.service.UserService;
 import com.wanderly.authservice.util.CodeGeneratorUtil;
-import com.wanderly.authservice.dto.response.AuthorizationResponse;
 import com.wanderly.common.dto.CustomResponse;
 import com.wanderly.common.dto.VerificationEmailMessage;
 import com.wanderly.common.util.JwtUtil;
@@ -65,7 +65,7 @@ public class AuthController {
     }
 
     @PostMapping("/verify-registration")
-    public ResponseEntity<CustomResponse<?>> verifyRegistration(@Valid @RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<CustomResponse<AuthorizationResponse>> verifyRegistration(@Valid @RequestBody RegisterRequest registerRequest) {
         String storedCode = redisService.getVerificationCode(registerRequest.email());
 
         if (storedCode == null) {

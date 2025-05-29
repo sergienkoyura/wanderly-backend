@@ -1,6 +1,6 @@
 package com.wanderly.authservice.controller;
 
-import com.wanderly.authservice.mapper.UserMapper;
+import com.wanderly.authservice.dto.response.UserDto;
 import com.wanderly.authservice.service.UserService;
 import com.wanderly.common.dto.CustomResponse;
 import com.wanderly.common.util.JwtUtil;
@@ -24,7 +24,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/me")
-    public ResponseEntity<CustomResponse<?>> me(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<CustomResponse<UserDto>> me(@RequestHeader("Authorization") String token) {
         UUID userId = JwtUtil.extractUserId(token);
         return ResponseEntity.ok(ResponseFactory.success("User is found", userService.findDtoById(userId)));
     }

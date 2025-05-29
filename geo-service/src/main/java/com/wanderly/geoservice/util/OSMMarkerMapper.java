@@ -46,14 +46,4 @@ public class OSMMarkerMapper {
             case VIEWPOINT, TRAILHEAD -> MarkerCategory.SCENIC;
         };
     }
-
-    public static int getAvgTime(MarkerCategory category) {
-        return switch (category) {
-            case NATURE -> 30;
-            case LANDMARK -> 20;
-            case ENTERTAINMENT -> 45;
-            case FOOD -> 60;
-            case SCENIC -> 15;
-        };
-    }
 }

@@ -1,7 +1,5 @@
 package com.wanderly.geoservice.entity;
 
-import com.wanderly.geoservice.enums.MarkerCategory;
-import com.wanderly.geoservice.enums.MarkerTag;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

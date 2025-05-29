@@ -17,11 +17,11 @@ public class VerificationEmailConsumer {
     private final MailService mailService;
 
     @KafkaListener(topics = "notification.verification-email", groupId = "notification-service-group")
-    public void listen(ConsumerRecord<String, VerificationEmailMessage> record, Acknowledgment ack) {
-        log.info("Received: {}", record.value());
+    public void listen(ConsumerRecord<String, VerificationEmailMessage> consumerRecord, Acknowledgment ack) {
+        log.info("Received: {}", consumerRecord.value());
         ack.acknowledge();
 
-        mailService.sendVerificationCodeEmail(record.value().email(), record.value().verificationCode());
+        mailService.sendVerificationCodeEmail(consumerRecord.value().email(), consumerRecord.value().verificationCode());
     }
 
 }

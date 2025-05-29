@@ -16,11 +16,11 @@ public class EraseRouteProgressConsumer {
     private final UserRouteCompletionService userRouteCompletionService;
 
     @KafkaListener(topics = "user.route.erase-progress", groupId = "user-service-group")
-    public void listen(ConsumerRecord<String, EraseRouteProgressMessage> record, Acknowledgment ack) {
-        log.info("Received: {}", record.value());
+    public void listen(ConsumerRecord<String, EraseRouteProgressMessage> consumerRecord, Acknowledgment ack) {
+        log.info("Received: {}", consumerRecord.value());
         ack.acknowledge();
 
-        userRouteCompletionService.eraseProgressByRouteId(record.value().getRouteId());
+        userRouteCompletionService.eraseProgressByRouteId(consumerRecord.value().getRouteId());
     }
 
 }

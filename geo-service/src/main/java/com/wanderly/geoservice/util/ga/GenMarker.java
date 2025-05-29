@@ -8,15 +8,6 @@ import lombok.NoArgsConstructor;
 import java.util.Objects;
 import java.util.UUID;
 
-//public record GenMarker(
-//        UUID id,
-//        double latitude,
-//        double longitude,
-//        double weight,
-//        int stayingTime, // minutes
-//        MarkerCategory category
-//) {}
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

@@ -4,7 +4,6 @@ import com.wanderly.common.dto.CustomResponse;
 import com.wanderly.common.util.JwtUtil;
 import com.wanderly.common.util.ResponseFactory;
 import com.wanderly.geoservice.dto.UserPreferencesDto;
-import com.wanderly.geoservice.entity.UserPreferences;
 import com.wanderly.geoservice.service.UserPreferencesService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class EraseRouteProgressProducer {
     private final KafkaTemplate<String, EraseRouteProgressMessage> kafkaTemplate;
-    private final String topic = "user.route.erase-progress";
+    private static final String topic = "user.route.erase-progress";
 
     public void sendProgressEraseMessage(EraseRouteProgressMessage message) {
         kafkaTemplate.send(topic, message);

@@ -38,7 +38,7 @@ public class CompletionController {
 
 
     @GetMapping("/ar-models/{modelId}")
-    public ResponseEntity<CustomResponse<?>> getModelCompletion(@PathVariable(name = "modelId") UUID modelId) {
+    public ResponseEntity<CustomResponse<Boolean>> getModelCompletion(@PathVariable(name = "modelId") UUID modelId) {
         return ResponseEntity.ok(ResponseFactory.success("Model completion is found", userArModelCompletionService.existsById(modelId)));
     }
 }

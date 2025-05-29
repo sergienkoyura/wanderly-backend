@@ -10,7 +10,6 @@ import lombok.Setter;
 import java.io.Serializable;
 import java.util.UUID;
 
-//todo: validation
 @Getter
 @Setter
 public class MarkerDto implements Serializable {
