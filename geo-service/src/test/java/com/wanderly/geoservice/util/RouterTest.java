@@ -1,5 +1,6 @@
 package com.wanderly.geoservice.util;
 
+import com.wanderly.geoservice.CustomDisplayName;
 import com.wanderly.geoservice.entity.City;
 import com.wanderly.geoservice.entity.Marker;
 import com.wanderly.geoservice.entity.UserPreferences;
@@ -10,6 +11,7 @@ import com.wanderly.geoservice.enums.TravelType;
 import com.wanderly.geoservice.util.ga.ChromoRoute;
 import com.wanderly.geoservice.util.ga.GenMarker;
 import com.wanderly.geoservice.util.ga.Router;
+import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -21,6 +23,7 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@DisplayNameGeneration(CustomDisplayName.class)
 class RouterTest {
 
     @Test
