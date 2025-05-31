@@ -46,15 +46,3 @@ public interface MarkerRepository extends JpaRepository<Marker, UUID> {
 
     List<Marker> findAllByCityIdAndCategory(UUID cityId, MarkerCategory nature);
 }
-
-//select count(*)
-//from marker m
-//         join route_marker on m.id = route_marker.marker_id
-//         join public.route r on route_marker.route_id = r.id
-//where m.city_id = '7681df13-0c62-4333-866e-fe73bb93a460'
-//  and user_id != '7681df13-0c62-4333-866e-fe73bb93a460';
-//
-//select count(*)
-//from marker
-//         left join route_marker on marker.id = route_marker.marker_id
-//where route_marker.id is null and marker.city_id = '7681df13-0c62-4333-866e-fe73bb93a460';

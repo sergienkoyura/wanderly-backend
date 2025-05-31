@@ -30,7 +30,7 @@ public class RouteController {
     public ResponseEntity<CustomResponse<?>> generateRoute(@RequestHeader("Authorization") String token,
                                                            @PathVariable(name = "cityId") UUID cityId) {
         UUID userId = JwtUtil.extractUserId(token);
-        return ResponseEntity.ok(ResponseFactory.success("Routes found", routeService.generateByCityIdAndUserId(cityId, userId)));
+        return ResponseEntity.ok(ResponseFactory.success("Route is found", routeService.generateByCityIdAndUserId(cityId, userId)));
     }
 
     @DeleteMapping("/routes/{routeId}")

@@ -1,10 +1,10 @@
 package com.wanderly.userservice.controller;
 
 import com.wanderly.common.dto.CustomResponse;
+import com.wanderly.common.util.JwtUtil;
 import com.wanderly.common.util.ResponseFactory;
 import com.wanderly.userservice.dto.UserProfileDto;
 import com.wanderly.userservice.service.UserProfileService;
-import com.wanderly.common.util.JwtUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,13 +18,6 @@ import java.util.UUID;
 public class UserProfileController {
 
     private final UserProfileService userProfileService;
-
-//    @GetMapping("/exists")
-//    public ResponseEntity<CustomResponse<Boolean>> exists(@RequestHeader("Authorization") String token) {
-//        UUID userId = JwtUtil.extractUserId(token);
-//        return ResponseEntity.ok(ResponseFactory.success("User profile is checked", userProfileService.existsByUserId(userId)));
-//
-//    }
 
     @GetMapping("/me")
     public ResponseEntity<CustomResponse<?>> me(@RequestHeader("Authorization") String token) {

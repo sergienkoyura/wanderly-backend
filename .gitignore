@@ -3,4 +3,6 @@
 */target
 /.env
 /env.yml
-/secrets/
+/sonar-project.properties
+/target/
+**/secrets/

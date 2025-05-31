@@ -27,6 +27,8 @@ services:
     image: wurstmeister/zookeeper
     ports:
       - "2181:2181"
+    networks:
+      - wanderly-network
 
   kafka:
     image: wurstmeister/kafka
@@ -38,6 +40,8 @@ services:
       KAFKA_ADVERTISED_PORT: 9092
     depends_on:
       - zookeeper
+    networks:
+      - wanderly-network
 
   discovery-service:
     image: wanderly-discovery-service:latest

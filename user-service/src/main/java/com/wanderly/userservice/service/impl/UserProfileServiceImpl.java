@@ -3,7 +3,6 @@ package com.wanderly.userservice.service.impl;
 import com.wanderly.userservice.dto.UserProfileDto;
 import com.wanderly.userservice.entity.UserProfile;
 import com.wanderly.userservice.exception.UserProfileNotFound;
-import com.wanderly.common.exception.ExistsByUserIdException;
 import com.wanderly.userservice.mapper.UserProfileMapper;
 import com.wanderly.userservice.repository.UserProfileRepository;
 import com.wanderly.userservice.service.UserProfileService;

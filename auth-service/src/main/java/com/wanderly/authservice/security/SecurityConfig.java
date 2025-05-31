@@ -44,12 +44,6 @@ public class SecurityConfig {
                         .requestMatchers("api/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
-//                .oauth2ResourceServer(server -> server
-//                        .jwt(jwt -> jwt
-//                                .jwtAuthenticationConverter(new CustomClaimConverter()))
-//                        .authenticationEntryPoint(new CustomAuthenticationEntryPointJwt()))
-//                .exceptionHandling(exception -> exception
-//                        .authenticationEntryPoint(new CustomAuthenticationEntryPoint()))
                 .build();
     }
 

@@ -9,10 +9,12 @@ import com.wanderly.geoservice.enums.MarkerCategory;
 import com.wanderly.geoservice.enums.MarkerTag;
 import com.wanderly.geoservice.enums.TravelType;
 import com.wanderly.geoservice.exception.MarkerNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class Router {
 
     public static ChromoRoute generateRoute(City city,
@@ -32,7 +34,7 @@ public class Router {
                         ),
                         m.getCategory()
                 ))
-                .collect(Collectors.toList());
+                .toList();
 
         List<GenMarker> prefix = new ArrayList<>();
         if (prefixOuter != null) {
@@ -46,8 +48,6 @@ public class Router {
         List<ChromoRoute> population = generateInitialPopulation(genMarkers, userPreferences, prefix);
 
         return evolve(genMarkers, userPreferences, population, prefix);
-
-//        return greedyGenerate(genMarkers, userPreferences);
     }
 
 
@@ -173,7 +173,7 @@ public class Router {
 //        int populationSize = Math.max((int) Math.ceil(markers.size() * 0.05), 10);
 //        int populationSize = (int) (markers.size() * 0.1);
         int populationSize = Math.max(20, (int) (Math.sqrt(markers.size()) * 5));
-        System.out.println("population size: " + populationSize);
+        log.info("population size: {}", populationSize);
 
         List<ChromoRoute> population = new ArrayList<>();
         for (int i = 0; i < populationSize; i++) {
@@ -190,8 +190,6 @@ public class Router {
     private static ChromoRoute greedyGenerate(List<GenMarker> allMarkers,
                                               UserPreferences prefs,
                                               List<GenMarker> prefix) {
-        // todo try to combine elite pick + random (30/70)
-
         Set<GenMarker> used = new LinkedHashSet<>();
         GenMarker current;
         List<GenMarker> bestMarkers = allMarkers.stream()
@@ -314,14 +312,14 @@ public class Router {
             double fitness = population.getFirst().getFitness();
             if (fitness > max) {
                 max = fitness;
-                System.out.println("local winner: " + max + ", iteration: " + gen);
+                log.info("local winner: {}, iteration: {}", max, gen);
             }
         }
 
         ChromoRoute bestRoute = population.getFirst();
         bestRoute.getMarkers().removeIf(Objects::isNull);
 
-        System.out.println("Best: " + bestRoute.getFitness());
+        log.info("Best: {}", bestRoute.getFitness());
 
         return bestRoute;
     }
@@ -329,8 +327,8 @@ public class Router {
 
     private static ChromoRoute tournamentSelect(List<ChromoRoute> population) {
         // best of random 20
-        int toChoose = new Random().nextInt(population.size() - 20);
-        return population.subList(toChoose, toChoose + 20).stream()
+        int toChoose = new Random().nextInt(population.size() - 19);
+        return population.subList(toChoose, toChoose + 19).stream()
                 .max(Comparator.comparingDouble(ChromoRoute::getFitness))
                 .orElse(population.getFirst());
     }
@@ -580,7 +578,6 @@ public class Router {
 
     public static String getSectorKey(double lat, double lon, int multiplier) {
         // Approximate 200-0.3/100-1.1 km sector
-//        int multiplier = prefs.getTimePerRoute() <= 5 ? 200 : 100;
         int latSector = (int) (lat * multiplier);
         int lonSector = (int) (lon * multiplier);
         return latSector + "_" + lonSector;

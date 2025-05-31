@@ -3,7 +3,9 @@ package com.wanderly.geoservice.dto;
 import com.wanderly.geoservice.enums.ActivityType;
 import com.wanderly.geoservice.enums.TravelType;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data

@@ -1,15 +1,14 @@
 package com.wanderly.geoservice.util;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wanderly.common.exception.InternalException;
 import com.wanderly.geoservice.entity.City;
 import com.wanderly.geoservice.entity.Marker;
 import com.wanderly.geoservice.enums.MarkerCategory;
 import com.wanderly.geoservice.enums.MarkerTag;
 import lombok.extern.slf4j.Slf4j;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -23,6 +22,12 @@ public class OSMUtil {
 
     private static final String OVERPASS_URL = "https://overpass-api.de/api/interpreter";
     private static final ObjectMapper mapper = new ObjectMapper();
+    private static HttpClient client = HttpClient.newHttpClient(); // default
+
+    // For test injection
+    public static void setHttpClient(HttpClient customClient) {
+        client = customClient;
+    }
 
     public static List<Marker> fetchMarkers(City city) {
         try {
@@ -76,7 +81,6 @@ public class OSMUtil {
                     .POST(HttpRequest.BodyPublishers.ofString("data=" + query))
                     .build();
 
-            HttpClient client = HttpClient.newHttpClient();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             JsonNode root = mapper.readTree(response.body()).get("elements");
@@ -126,7 +130,7 @@ public class OSMUtil {
             return markers;
         } catch (Exception e) {
             log.error("Exception while parsing markers: {}", e.getMessage());
-            throw new RuntimeException("Server error occurred. Try again later");
+            throw new InternalException("Server error occurred. Try again later");
         }
     }
 

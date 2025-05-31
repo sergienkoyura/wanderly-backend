@@ -1,9 +1,7 @@
 package com.wanderly.userservice.kafka;
 
-import com.wanderly.common.dto.EraseRouteProgressMessage;
 import com.wanderly.common.dto.UserARModelCompletionMessage;
 import com.wanderly.userservice.service.UserARModelCompletionService;
-import com.wanderly.userservice.service.UserRouteCompletionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -18,11 +16,11 @@ public class UserARModelCompletionConsumer {
     private final UserARModelCompletionService userARModelCompletionService;
 
     @KafkaListener(topics = "user.ar-model.complete", groupId = "user-service-group")
-    public void listen(ConsumerRecord<String, UserARModelCompletionMessage> record, Acknowledgment ack) {
-        log.info("Received: {}", record.value());
+    public void listen(ConsumerRecord<String, UserARModelCompletionMessage> consumerRecord, Acknowledgment ack) {
+        log.info("Received: {}", consumerRecord.value());
         ack.acknowledge();
 
-        userARModelCompletionService.save(record.value().getUserId(), record.value().getModelId(), record.value().getCityName());
+        userARModelCompletionService.save(consumerRecord.value().getUserId(), consumerRecord.value().getModelId(), consumerRecord.value().getCityName());
     }
 
 }

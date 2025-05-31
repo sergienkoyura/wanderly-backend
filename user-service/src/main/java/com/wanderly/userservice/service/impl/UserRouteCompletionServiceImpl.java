@@ -6,7 +6,6 @@ import com.wanderly.userservice.enums.RouteStatus;
 import com.wanderly.userservice.exception.UserRouteCompletedException;
 import com.wanderly.userservice.exception.UserRouteCompletionNotFound;
 import com.wanderly.userservice.mapper.UserRouteCompletionMapper;
-import com.wanderly.userservice.mapper.UserRouteCompletionMapperImpl;
 import com.wanderly.userservice.repository.UserRouteCompletionRepository;
 import com.wanderly.userservice.service.UserRouteCompletionService;
 import lombok.RequiredArgsConstructor;
