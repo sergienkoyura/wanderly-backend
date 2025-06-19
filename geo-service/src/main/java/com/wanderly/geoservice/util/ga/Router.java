@@ -92,8 +92,6 @@ public class Router {
             };
 
             case COMBINED -> switch (markerCategory) {
-//                case LANDMARK -> 4;
-//                case FOOD -> 3;
                 default -> 3;
             };
         };
@@ -170,8 +168,6 @@ public class Router {
                                                                UserPreferences prefs,
                                                                List<GenMarker> prefix) {
         // Population: 5% of all markers or 10
-//        int populationSize = Math.max((int) Math.ceil(markers.size() * 0.05), 10);
-//        int populationSize = (int) (markers.size() * 0.1);
         int populationSize = Math.max(20, (int) (Math.sqrt(markers.size()) * 5));
         log.info("population size: {}", populationSize);
 
@@ -213,10 +209,6 @@ public class Router {
             used.add(current);
             totalTime = current.getStayingTime();
         }
-
-        // Random start
-//        GenMarker current = bestMarkers.get(new Random().nextInt(bestMarkers.size()));
-//        used.add(current);
 
         while (true) {
             int finalTotalTime = totalTime;

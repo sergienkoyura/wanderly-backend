@@ -36,7 +36,6 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-//                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 // CSRF protection is unnecessary because of JWT
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -81,16 +80,4 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-
-//    @Bean
-//    public CorsConfigurationSource corsConfigurationSource() {
-//        CorsConfiguration configuration = new CorsConfiguration();
-//        configuration.setAllowedOrigins(Arrays.asList("*"));
-//        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-//        configuration.setAllowedHeaders(Arrays.asList("Authorization", "content-type", "x-auth-token"));
-//        configuration.setExposedHeaders(Arrays.asList("x-auth-token"));
-//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//        source.registerCorsConfiguration("/**", configuration);
-//        return source;
-//    }
 }

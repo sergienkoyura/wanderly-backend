@@ -24,29 +24,40 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         long totalCompletedARModels = arModelCompletionRepository.countCompletedARModelsByUserId(userId);
         long totalCompletedRoutes = userRouteCompletionRepository.countCompletedRoutesByUserId(userId);
+        long totalCompletedMarkers = userRouteCompletionRepository.countCompletedMarkersByUserId(userId);
 
         List<CityStatisticsDto> cities = new ArrayList<>();
         List<Tuple> citiesRoutes = userRouteCompletionRepository.getRouteStatsPerCity(userId);
         List<Tuple> citiesARModels = arModelCompletionRepository.getARModelStatsPerCity(userId);
 
-        Map<String, Long> arModelsByCity = citiesARModels.stream()
-                .collect(Collectors.toMap(
-                        t -> t.get("cityName", String.class),
-                        t -> (t.get("completedARModels", Long.class))
-                ));
-
         for (Tuple cityRoute : citiesRoutes) {
             String cityName = cityRoute.get("cityName", String.class);
             long completedRoutes = cityRoute.get("completedRoutes", Long.class);
             long inProgressRoutes = cityRoute.get("inProgressRoutes", Long.class);
-            long completedARModels = arModelsByCity.getOrDefault(cityName, 0L);
 
             cities.add(CityStatisticsDto.builder()
                     .name(cityName)
                     .completedRoutes(completedRoutes)
                     .inProgressRoutes(inProgressRoutes)
-                    .completedARModels(completedARModels)
+                    .completedARModels(0L)
                     .build());
+        }
+
+        for (Tuple cityModel : citiesARModels) {
+            String cityName = cityModel.get("cityName", String.class);
+            long completedARModels = cityModel.get("completedARModels", Long.class);
+
+            Optional<CityStatisticsDto> dto = cities.stream().filter(el -> el.getName().equals(cityName)).findAny();
+            if (dto.isPresent()) {
+                dto.get().setCompletedARModels(completedARModels);
+            } else {
+                cities.add(CityStatisticsDto.builder()
+                        .name(cityName)
+                        .completedRoutes(0L)
+                        .inProgressRoutes(0L)
+                        .completedARModels(completedARModels)
+                        .build());
+            }
         }
 
         cities.sort(Comparator
@@ -56,6 +67,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         statisticsDto.setTotalCompletedARModels(totalCompletedARModels);
         statisticsDto.setTotalCompletedRoutes(totalCompletedRoutes);
+        statisticsDto.setTotalCompletedMarkers(totalCompletedMarkers);
         statisticsDto.setCities(cities);
 
         return statisticsDto;

@@ -10,5 +10,6 @@ import java.util.List;
 public class StatisticsDto {
     private Long totalCompletedARModels;
     private Long totalCompletedRoutes;
+    private Long totalCompletedMarkers;
     private List<CityStatisticsDto> cities;
 }

@@ -34,4 +34,12 @@ public interface UserRouteCompletionRepository extends JpaRepository<UserRouteCo
                 GROUP BY urc.cityName
             """)
     List<Tuple> getRouteStatsPerCity(@Param("userId") UUID userId);
+
+    @Query("""
+                SELECT
+                sum(urc.step + 1)
+                FROM UserRouteCompletion urc
+                WHERE urc.userId = :userId
+            """)
+    int countCompletedMarkersByUserId(@Param("userId") UUID userId);
 }
